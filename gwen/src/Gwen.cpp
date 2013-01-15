@@ -9,6 +9,13 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifndef DEBUG_BREAK
+#	if defined(_MSC_VER)
+#		define DEBUG_BREAK __debugbreak() // _asm { int 3 }
+#	elif defined(__GNUC__)
+#		define DEBUG_BREAK __builtin_trap()
+#	endif
+#endif
 
 namespace Gwen
 {
@@ -47,7 +54,7 @@ namespace Gwen
 
 #ifdef _WIN32
 			MessageBoxA( NULL, strMsg, "Assert", MB_ICONEXCLAMATION | MB_OK );
-			_asm { int 3 }
+			DEBUG_BREAK;
 #endif
 		}
 	}

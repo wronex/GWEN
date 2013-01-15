@@ -20,7 +20,10 @@
 
 #include <windows.h>
 #include <ShlObj.h>
-#include <Shobjidl.h>
+
+#ifndef __MINGW32__
+#	include <Shobjidl.h>
+#endif
 
 using namespace Gwen;
 using namespace Gwen::Platform;
@@ -191,6 +194,12 @@ bool Gwen::Platform::FileOpen( const String& Name, const String& StartPath, cons
 
 bool Gwen::Platform::FolderOpen( const String& Name, const String& StartPath, Gwen::Event::Handler* pHandler, Event::Handler::FunctionWithInformation fnCallback )
 {
+#ifdef __MINGW32__
+
+	return false;
+
+#else
+
 	IFileDialog *pfd = NULL;
 	bool bSuccess = false;
 
@@ -246,6 +255,8 @@ bool Gwen::Platform::FolderOpen( const String& Name, const String& StartPath, Gw
 	pfd->Release();
 
 	return bSuccess;
+
+#endif
 }
 
 bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, const String& Extension, Gwen::Event::Handler* pHandler, Gwen::Event::Handler::FunctionWithInformation fnCallback )
@@ -304,6 +315,12 @@ bool Gwen::Platform::FileSave( const String& Name, const String& StartPath, cons
 
 void* Gwen::Platform::CreatePlatformWindow( int x, int y, int w, int h, const Gwen::String& strWindowTitle )
 {
+#ifdef __MINGW32__
+
+	return NULL;
+
+#else
+
 	CoInitializeEx( NULL, COINIT_APARTMENTTHREADED );
 
 	WNDCLASSA	wc;
@@ -330,13 +347,19 @@ void* Gwen::Platform::CreatePlatformWindow( int x, int y, int w, int h, const Gw
 	}
 
 	return (void*)hWindow;
+
+#endif
 }
 
 void Gwen::Platform::DestroyPlatformWindow( void* pPtr )
 {
+#ifndef __MINGW32__
+
 	DestroyWindow( (HWND)pPtr );
 
 	CoUninitialize();
+
+#endif
 }
 
 void Gwen::Platform::MessagePump( void* pWindow, Gwen::Controls::Canvas* ptarget )

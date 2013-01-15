@@ -16,14 +16,21 @@ solution "GWEN"
 	
 	if ( _ACTION == "vs2010" or _ACTION=="vs2008" ) then
 		buildoptions { "/MP"  }
-	end 
+	end
 	
-	
+
 
 configuration "Release"
 	defines { "NDEBUG" }
-	flags{ "Optimize", "FloatFast" }
 	includedirs { "../include/" }
+	
+	if ( _ACTION == "gmake" and os.get() == "windows" ) then
+		-- With MinGW (GCC 4.4) optimization breaks GWEN. Disabling strict 
+		-- aliasing doesn't help.
+		flags { "FloatFast" }
+	else
+		flags { "Optimize", "FloatFast" }
+	end
 	
 configuration "Debug"
 	defines { "_DEBUG" }
