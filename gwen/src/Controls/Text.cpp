@@ -187,11 +187,17 @@ void Text::RefreshSize()
 		return;
 	}
 
-	Gwen::Point p( 1, GetFont()->size );
+	Gwen::Point p;
 
 	if ( Length() > 0 )
 	{
 		p = GetSkin()->GetRender()->MeasureText( GetFont(), m_String.GetUnicode() );
+	}
+	else
+	{
+		// Required for correct carret placement in empty textboxes.
+		p.x = 1;
+		p.y = GetSkin()->GetRender()->MeasureText( GetFont(), L" " ).y;
 	}
 
 	p.x += GetPadding().left + GetPadding().right;

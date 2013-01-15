@@ -431,6 +431,21 @@ void TextBox::Layout( Skin::Base* skin )
 	RefreshCursorBounds();
 }
 
+void TextBox::PostLayout( Skin::Base* skin )
+{
+	// Store the position of the TextBox's text before Label moves it to the
+	// incorrect X position.
+	Point p = m_Text->GetPos();
+
+	// This call will perform Label::PostLayout()
+	//   ==> m_Text->Position( m_iAlign )
+	// which breaks the position changes made by MakeCaretVisible().
+	BaseClass::PostLayout( skin );
+
+	// Restore the correct X position as given by MakeCaretVisible().
+	m_Text->SetPos( p.x, m_Text->Y() );
+}
+
 void TextBox::OnTextChanged()
 {
 	if ( m_iCursorPos > TextLength() ) m_iCursorPos = TextLength();
