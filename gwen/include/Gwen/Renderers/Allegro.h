@@ -12,6 +12,10 @@
 #include "Gwen/Gwen.h"
 #include "Gwen/BaseRender.h"
 #include <allegro5/allegro5.h>
+#include <allegro5/allegro_font.h>
+
+// Define to disable the Allegro renderer's support for Unicode strings.
+//#define GWEN_ALLEGRO_DISABLE_UNICODE
 
 namespace Gwen 
 {
@@ -50,6 +54,32 @@ namespace Gwen
 				ALLEGRO_COLOR   m_Color;
 
 		};
+
+#ifndef GWEN_ALLEGRO_DISABLE_UNICODE
+
+		//
+		// This is the struct stored in Gwen::Font->data.
+		//
+		struct AllegroFontData {
+			ALLEGRO_FONT* alFont;
+			int paddingWidth;
+		};
+
+		//
+		// A manager for Allegro's UTF8 string.
+		//
+		class AllegroUnicodeString {
+		public:
+			AllegroUnicodeString(const Gwen::UnicodeString& text);
+			~AllegroUnicodeString();
+
+			inline const ALLEGRO_USTR* get() const { return pUstr; }
+
+		private:
+			ALLEGRO_USTR* pUstr;
+		};
+
+#endif // GWEN_ALLEGRO_DISABLE_UNICODE
 	}
 }
 #endif

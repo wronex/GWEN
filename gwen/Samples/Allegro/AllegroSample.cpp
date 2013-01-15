@@ -44,8 +44,7 @@ int main()
 	//
 	// Create a GWEN skin
 	//
-	Gwen::Skin::TexturedBase skin;
-	skin.SetRender( pRenderer );
+	Gwen::Skin::TexturedBase skin( pRenderer );
 	skin.Init( "DefaultSkin.png" );
 
 	// The fonts work differently in Allegro - it can't use
@@ -72,7 +71,6 @@ int main()
 	//
 	Gwen::Input::Allegro GwenInput;
 	GwenInput.Initialize( pCanvas );
-
 
 	ALLEGRO_EVENT ev;
 	bool bQuit = false;
