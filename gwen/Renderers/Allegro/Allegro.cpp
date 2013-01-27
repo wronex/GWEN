@@ -55,21 +55,17 @@ namespace Gwen
 				return;
 			}
 
-#ifdef GWEN_ALLEGRO_DISABLE_UNICODE
-				font->data = afont;
-#else
-				// Calculate the padding required for the HACK in MeasureText().
-				// Not caching the value here would force us to perform two
-				// measures in MeasureText().
-				int bx, by, tw, th;
-				al_get_text_dimensions( afont, ".", &bx, &by, &tw, &th );
+			// Calculate the padding required for the HACK in MeasureText(). Not
+			// caching the value here would force us to perform two measures in
+			// MeasureText().
+			int bx, by, tw, th;
+			al_get_text_dimensions( afont, ".", &bx, &by, &tw, &th );
 
-				AllegroFontData *pData = new AllegroFontData;
-				pData->alFont = afont;
-				pData->paddingWidth = tw;
+			AllegroFontData *pData = new AllegroFontData;
+			pData->alFont = afont;
+			pData->paddingWidth = tw;
 
-				font->data = pData;
-#endif
+			font->data = pData;
 		}
 
 		void Allegro::FreeFont( Gwen::Font* pFont )
@@ -77,13 +73,9 @@ namespace Gwen
 			if ( !pFont->data )
 				return;
 
-#ifdef GWEN_ALLEGRO_DISABLE_UNICODE
-				al_destroy_font( (ALLEGRO_FONT*)pFont->data );
-#else
-				AllegroFontData *pData = static_cast<AllegroFontData*>(pFont->data);
-				al_destroy_font(pData->alFont);
-				delete pData;
-#endif
+			AllegroFontData *pData = static_cast<AllegroFontData*>( pFont->data );
+			al_destroy_font( pData->alFont );
+			delete pData;
 
 			pFont->data = NULL;
 		}
@@ -92,16 +84,14 @@ namespace Gwen
 		{
 			Translate( pos.x, pos.y );
 
+			AllegroFontData *pData = static_cast<AllegroFontData*>(pFont->data);
+
 #ifdef GWEN_ALLEGRO_DISABLE_UNICODE
-				ALLEGRO_FONT *afont = (ALLEGRO_FONT*) pFont->data;
-
-				al_draw_text( afont, m_Color, pos.x,pos.y, ALLEGRO_ALIGN_LEFT,
-					Utility::UnicodeToString( text ).c_str());
+			String altext = Utility::UnicodeToString( text );
+			al_draw_text( pData->alFont, m_Color, pos.x,pos.y, ALLEGRO_ALIGN_LEFT, altext.c_str() );
 #else
-				AllegroFontData *pData = static_cast<AllegroFontData*>(pFont->data);
-
-				AllegroUnicodeString altext( text );
-				al_draw_ustr( pData->alFont, m_Color, pos.x,pos.y, ALLEGRO_ALIGN_LEFT, altext.get() );
+			AllegroUnicodeString altext( text );
+			al_draw_ustr( pData->alFont, m_Color, pos.x,pos.y, ALLEGRO_ALIGN_LEFT, altext.get() );
 #endif
 		}
 
@@ -117,25 +107,22 @@ namespace Gwen
 
 			if ( !pFont->data ) return Gwen::Point( 0, 0 );
 
+			AllegroFontData *pData = static_cast<AllegroFontData*>(pFont->data);
 			int bx, by, tw, th;
 
+			// HACK: For some reason a string ending with a space (L' ') is
+			// measured incorrecty. To fix this, pad the string with a character
+			// to make sure it does not end with a space.
+
 #ifdef GWEN_ALLEGRO_DISABLE_UNICODE
-				// Measure without unicode support.
-				ALLEGRO_FONT *afont = (ALLEGRO_FONT*) pFont->data;
-				al_get_text_dimensions( afont, Utility::UnicodeToString( text ).c_str(),
-					&bx, &by, &tw, &th );
+			String altext = Utility::UnicodeToString( text + L"." );
+			al_get_text_dimensions( pData->alFont, altext.c_str(), &bx, &by, &tw, &th );
 #else
-				// HACK: For some reason a string ending with a space (L' ') is
-				// measured incorrecty. To fix this, pad the string with a
-				// character to make sure it does not end with a space.
-				AllegroFontData *pData = static_cast<AllegroFontData*>(pFont->data);
-
-				AllegroUnicodeString altext( text + L"." );
-				al_get_ustr_dimensions( pData->alFont, altext.get(), &bx, &by, &tw, &th );
-
-				// Compensate for the padding.
-				tw -= pData->paddingWidth;
+			AllegroUnicodeString altext( text + L"." );
+			al_get_ustr_dimensions( pData->alFont, altext.get(), &bx, &by, &tw, &th );
 #endif
+			// Compensate for the padding.
+			tw -= pData->paddingWidth;
 
 			return Gwen::Point( tw, th );
 		}
@@ -238,7 +225,8 @@ namespace Gwen
 		}
 
 		AllegroUnicodeString::~AllegroUnicodeString() {
-			al_ustr_free( pUstr );
+			if (pUstr)
+				al_ustr_free( pUstr );
 		}
 
 #endif

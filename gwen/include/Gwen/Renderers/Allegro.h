@@ -55,8 +55,6 @@ namespace Gwen
 
 		};
 
-#ifndef GWEN_ALLEGRO_DISABLE_UNICODE
-
 		//
 		// This is the struct stored in Gwen::Font->data.
 		//
@@ -64,6 +62,8 @@ namespace Gwen
 			ALLEGRO_FONT* alFont;
 			int paddingWidth;
 		};
+
+#ifndef GWEN_ALLEGRO_DISABLE_UNICODE
 
 		//
 		// A manager for Allegro's UTF8 string.
