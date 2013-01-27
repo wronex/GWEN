@@ -309,6 +309,12 @@ bool TextBox::OnKeyEnd( bool /*bDown*/ )
 	return true;
 }
 
+bool TextBox::OnKeyEscape( bool /*bDown*/ )
+{
+	Blur();
+	return true;
+}
+
 void TextBox::SetCursorPos( int i )
 {
 	if ( m_iCursorPos == i ) return;

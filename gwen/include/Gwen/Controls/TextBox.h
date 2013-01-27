@@ -44,6 +44,7 @@ namespace Gwen
 				virtual bool OnKeyLeft( bool bDown );
 				virtual bool OnKeyHome( bool bDown );
 				virtual bool OnKeyEnd( bool bDown );
+				virtual bool OnKeyEscape( bool bDown );
 
 				virtual bool AccelOnlyFocus() { return true; }
 
